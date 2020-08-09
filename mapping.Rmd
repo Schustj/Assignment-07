@@ -1,0 +1,56 @@
+---
+title: "Choropleth Mapping"
+author: "Jonathan Schuster"
+date: "8/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+library(tidyverse)
+library(stringr)
+library(choroplethr)
+library(choroplethrMaps)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Data, message = FALSE, echo=FALSE}
+data(state.regions)
+myData <- read_csv("raw_data/US_MAP_DATA.csv", skip = 2)
+```
+
+```{r deaths, message = FALSE, echo=FALSE}
+deathData <- myData %>% 
+        rename(Deaths = "Total Death") %>%
+        filter(fips < 57, abbr != "US") %>%
+        summarise(region = str_to_lower(jurisdiction), value = Deaths)
+
+write.csv(deathData,"C:/Users/Jonny/Documents/GitHub/Assignment-07/output/deaths_by_state.csv", row.names = FALSE)
+
+```
+
+```{r rates, message = FALSE, echo=FALSE}
+rateData <- myData %>% 
+        filter(fips < 57, abbr != "US") %>%
+        summarize(region = str_to_lower(jurisdiction), value = RatePer100000)
+
+write.csv(rateData,"C:/Users/Jonny/Documents/GitHub/Assignment-07/output/normalized_deaths_by_state.csv", row.names = FALSE)
+```
+
+```{r maps, message = FALSE, echo=FALSE}
+
+state_choropleth(deathData, title = "Total Deaths due to COVID", legend = "Deaths")
+
+```
+
+**Interpretation:**
+
+Looking at the data it seems that states with a higher population show higher total number of deaths due to COVID. 
+
+```{r rates2, message = FALSE, echo = FALSE}
+state_choropleth(rateData, title = "Total Deaths Normalized", legend = "Deaths")
+
+```
+
+**Interpretation:**
+
+Looking at the normalized data we see states surrounding Florida show higher total deaths when compared to their respective populations. 
